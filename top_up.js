@@ -101,6 +101,37 @@ async function withdraw_from_wallet(user_id, acc_num, amount){
   }
 }
 
+async function pay_to_user(sender_id,receiver_id,amount){ //user_id sends payment to acc_num
+  try{
+    const senderData = await getWalletData(sender_id); 
+    const receiverData = await getWalletData(receiver_id);
+    if(senderData!= null && receiverData!= null){ //check if both accounts are in db
+      const date = new Date();
+      const credited_wallet = receiver_id;
+      const debited_wallet = sender_id;
+      const senderBal = senderData.balance - amount; //deduct from sender 
+      await db.collection('wallets').doc(sender_id).update({balance: senderBal});
+      const receiverBal = receiverData.balance + amount; //add to receiver
+      await db.collection('wallets').doc(receiver_id).update({balance:receiverBal});
+      //create transaction
+      const transaction_id = Math.random().toString(36).substring(2, 10);
+      await create_transaction(sender_id, credited_wallet, debited_wallet, transaction_id, date, 'User-to-User Payment', amount);
+      console.log(`$${amount} was deducted from ${debited_wallet} to ${credited_wallet} at ${date}`);
+      console.log(`The new balance is ${senderBal}`); //just display new balance of sender
+      console.log(`Receiver balance: ${receiverBal}`); //can delete in future
+      return senderData;
+    }
+    else{ //one or more account invalid
+      console.log("Unable to make payment");
+      return null;
+    }
+  }
+  catch(error){
+    console.log("Error has occured during payment", error);
+    return null;
+  }
+}
+
 async function create_transaction(user_id, credited_wallet, debited_wallet, transaction_id, date, type, amount){
   try {
     const reference_id = Math.random().toString(36).substring(1,15)
@@ -133,7 +164,8 @@ async function execute_transactions(functions){
 
 const functionsToExecute = [
   () => top_up_wallet("1693484480174_sn2ful4g", "123", 5),
-  () => withdraw_from_wallet("1693484480174_sn2ful4g", "123", 5)
+  () => withdraw_from_wallet("1693484480174_sn2ful4g", "123", 5),
+  () => pay_to_user("1693484480174_sn2ful4g","1693928955016_5v87ykew",10)
 ];
 
 
