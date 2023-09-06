@@ -121,6 +121,22 @@ async function create_transaction(user_id, credited_wallet, debited_wallet, tran
   }
 }
 
+async function delete_data(user_id){
+  try {
+    const userRef = db.collection("users").doc(user_id)
+    if(userRef.exists){
+      await db.collection("users").doc(user_id).delete();
+      await db.collection("wallets").doc(user_id).delete();
+      console.log("User accout and wallet deleted successfully")
+    }else{
+      console.log("Wallet does not exist")
+    }
+  } catch (error) {
+    console.log("Error deleting data")
+  }
+}
+
+
 async function execute_transactions(functions){
   for (const func of functions){
     try{
@@ -136,6 +152,6 @@ const functionsToExecute = [
   () => withdraw_from_wallet("1693484480174_sn2ful4g", "123", 5)
 ];
 
-
-execute_transactions(functionsToExecute);
+delete_data("1693981635547_mdzco73h");
+//execute_transactions(functionsToExecute);
 

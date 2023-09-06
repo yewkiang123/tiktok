@@ -62,20 +62,11 @@ async function add_new_wallet(user_id){
 
 // Taking data from frontend
 const accountDetailsFromFrontend = {
-  first: 'Ada',
-  last: 'Lovelace',
+  first: 'test',
+  last: 'test',
   born: 1815,
   email: 'ada@example.com'// Add more properties as needed
 };
-
-async function delete_data(user_id){
-  try {
-    const dataRef = db.collection("users").doc(user_id)
-  } catch (error) {
-    console.log("Error deleting data")
-  }
-}
-
 
 // Call the function to add a new user account with the provided details
 add_new_user_account(accountDetailsFromFrontend)
