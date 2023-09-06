@@ -6,7 +6,9 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 // This is your test secret API key.
-const stripe = require("stripe")(process.env.STRIPE_KEY);
+const stripe = require("stripe")(
+  "sk_test_51NlgQ0Isn5ijZV1GE7N2HDn4vtGzNq70oBGaMHCJFMAzPjz7Ca63Cne8lYJH3qF1Kp1vMYn1E7pdFv5Q9SjXChRX00Gu22HlVR"
+);
 const serviceAccount = require("./secrets/serviceAccount.json");
 
 //app.listen(4242, () => console.log("Node server listening on port 4242!"));
