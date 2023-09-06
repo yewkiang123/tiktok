@@ -164,7 +164,8 @@ async function execute_transactions(functions){
 
 const functionsToExecute = [
   () => top_up_wallet("1693484480174_sn2ful4g", "123", 5),
-  () => withdraw_from_wallet("1693484480174_sn2ful4g", "123", 5)
+  () => withdraw_from_wallet("1693484480174_sn2ful4g", "123", 5),
+  () => pay_to_user("1693484480174_sn2ful4g","1693928955016_5v87ykew",10)
 ];
 
 
