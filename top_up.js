@@ -187,9 +187,7 @@ async function delete_data(user_id) {
 
 const functionsToExecute = [
   () => top_up_wallet("1693484480174_sn2ful4g", "123", 5),
-  () => withdraw_from_wallet("1693484480174_sn2ful4g", "123", 5),
-  () => pay_to_user("1693484480174_sn2ful4g","1693928955016_5v87ykew",10),
-  () => delete_data("1693983793071_p2jqo76k")
+  () => withdraw_from_wallet("1693484480174_sn2ful4g", "123", 5)
 ];
 
 
