@@ -180,6 +180,23 @@ async function delete_data(user_id) {
   }
 }
 
+async function delete_data(user_id) {
+  try {
+    const userRef = db.collection("users").doc(user_id);
+    const userDoc = await userRef.get(); // Await the result of get()
+
+    if (userDoc.exists){
+      // Document exists, proceed with deletion
+      await userRef.delete(); // Await the delete operation
+      await db.collection("wallets").doc(user_id).delete(); // Await the delete operation for wallets
+      console.log("User data and wallet removed successfully");
+    } else {
+      console.log("User data does not exist");
+    }
+  } catch (error) {
+    console.error("Unable to delete data:", error);
+  }
+}
 
 
 
@@ -187,7 +204,9 @@ async function delete_data(user_id) {
 
 const functionsToExecute = [
   () => top_up_wallet("1693484480174_sn2ful4g", "123", 5),
-  () => withdraw_from_wallet("1693484480174_sn2ful4g", "123", 5)
+  () => withdraw_from_wallet("1693484480174_sn2ful4g", "123", 5),
+  () => delete_data("16934812480174_sn2ful4g"),
+  () => pay_to_user("1693484480174_sn2ful4g","1693928955016_5v87ykew",10)
 ];
 
 
