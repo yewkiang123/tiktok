@@ -89,7 +89,7 @@ class WalletFunctions {
         await db.collection("wallets").doc(user_id).update({ balance: newBal });
         const transaction_id = Math.random().toString(36).substring(2, 10);
 
-        await this.create_transaction(
+        await WalletFunctions.create_transaction(
           user_id,
           credited_wallet,
           debited_wallet,
@@ -164,6 +164,7 @@ class WalletFunctions {
   }
 
   static async create_transaction(
+    
     user_id,
     credited_wallet,
     debited_wallet,
@@ -171,7 +172,7 @@ class WalletFunctions {
     date,
     type,
     amount
-  ) {
+) {
     try {
       const reference_id = Math.random().toString(36).substring(1, 15);
       const transaction = {
@@ -184,12 +185,13 @@ class WalletFunctions {
         type: type,
         amount: amount,
       };
-      const transactionRef = db.collection("Transactions").doc(reference_id);
+      const transactionRef = db.collection("wallets").doc(user_id).collection("Transactions").doc(reference_id);
       await transactionRef.set(transaction);
     } catch (error) {
       console.log("Unable to generate transaction");
     }
   }
+
 
   static async delete_data(user_id) {
     try {
@@ -210,15 +212,21 @@ class WalletFunctions {
   }
 }
 
-app.post("/create-payment-intent", async (req, res) => {
+//to receive post request
+app.post('/create-payment-intent', async (req, res) => {
   const { amount } = req.body;
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: amount,
-    currency: "sgd",
-  });
-  res.send({
-    clientSecret: paymentIntent.client_secret,
-  });
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount,
+      currency: 'sgd', // Adjust this currency as needed
+    });
+    res.send({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    console.error('Error creating payment intent:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 async function execute_transactions(functions) {
@@ -231,17 +239,42 @@ async function execute_transactions(functions) {
   }
 }
 
+async function show_transactions(user_id, startDateStr, endDateStr) {
+  try {
+    //if no date then null
+    const startDate = startDateStr ? new Date(startDateStr) : null;
+    const endDate = endDateStr ? new Date(endDateStr) : null;
+    
+    const transactionRef = db.collection("wallets").doc(user_id).collection("Transactions");
+    
+    let query = transactionRef;
+    
+    if (startDate && endDate) {
+      query = query.where("date", ">=", startDate).where("date", "<=", endDate);
+    }
+    
+    const transactionDocs = await query.get();
+    transactionDocs.forEach(doc => {
+      console.log(doc.id, '=>', doc.data());
+    });
+  } catch (error) {
+    console.error("Error fetching and displaying transactions:", error);
+  }
+}
+
+
 const functionsToExecute = [
-  () => WalletFunctions.top_up_wallet("1693484480174_sn2ful4g", "123", 5),
-  () =>
-    WalletFunctions.withdraw_from_wallet("1693484480174_sn2ful4g", "123", 5),
-  () => WalletFunctions.delete_data("16934812480174_sn2ful4g"),
-  () =>
-    WalletFunctions.pay_to_user(
-      "1693484480174_sn2ful4g",
-      "1693928955016_5v87ykew",
-      10
-    ),
+
+    async () => {
+       //console.log(await WalletFunctions.getWalletData('1694072283717_d3bovs8z'))
+       //await show_transactions("1694072283717_d3bovs8z");
+       //WalletFunctions.top_up_wallet("1694072283717_d3bovs8z", "123", 5)
+       //WalletFunctions.withdraw_from_wallet("1694072283717_d3bovs8z", "123", 5),
+       //WalletFunctions.delete_data("16934812480174_sn2ful4g"),
+      //WalletFunctions.pay_to_user("1694072283717_d3bovs8z","1694072361039_juobd81v",10)
+    }
 ];
+// Example: Show transactions between September 1, 2023, and September 30, 2023
+show_transactions("1694072283717_d3bovs8z", "2023-09-08", "2023-09-09");
 
 execute_transactions(functionsToExecute);
